@@ -88,13 +88,12 @@ async function chat(question) {
   const standaloneQuestionPrompt = PromptTemplate.fromTemplate(
     standaloneQuestionTemplate
   );
-  const answerTemplate = `You are a helpful and enthusiastic support bot who can answer a given question about WebX based on the context provided and the conversation history. Try to find the answer in the context. If the answer is not given in the context, find the answer in the conversation history if possible. If you really don't know the answer, say "I'm sorry, I don't know the answer to that." And direct the questioner to email webxnepal@gmail.com. Don't try to make up an answer. Always speak as if you were chatting to a friend.
+  const answerTemplate = `You are a interactive and helpful bot of WebX company .. you are chatting to a customer. so Always be interactive .Find the answer from the given context. If you really don't find answer from context about the company, say "I'm sorry, I don't know the answer to that." And direct the questioner to email webxnepal@gmail.com.
     context: {context}
     conversation history: {conv_history}
     question: {question}
     answer: `;
   const answerPrompt = PromptTemplate.fromTemplate(answerTemplate);
-
   const standaloneQuestionChain = standaloneQuestionPrompt
     .pipe(llm)
     .pipe(new StringOutputParser());
