@@ -81,15 +81,15 @@ async function chat(question) {
       {pineconeIndex},
   );
   const retriever = documents.asRetriever()
-  const standaloneQuestionTemplate = `From the given question .Create a standalone question ,
+  const standaloneQuestionTemplate = `From the given question understand what it wants about the webX company and create a standalone question,
     conversation history: {conv_history}
     question: {question} 
     standalone question:`;
   const standaloneQuestionPrompt = PromptTemplate.fromTemplate(
     standaloneQuestionTemplate
   );
-  const answerTemplate = `You are a interactive and helpful bot of WebX company .. you are chatting to a customer. so Always be interactive .Find the answer from the given context. If you really don't find answer from context about the company, say "I'm sorry, I don't know the answer to that." And direct the questioner to email webxnepal@gmail.com.
-    context: {context}
+  const answerTemplate = `You are a interactive and helpful bot of WebX company .. you are chatting to a customer. so Always be interactive .Answer the question in interactive from the given information . If you really don't find similare answer of question from information about the company, say "Could you please elaborate more?" And direct the questioner to email webxnepal@gmail.com.
+    information: {information}
     conversation history: {conv_history}
     question: {question}
     answer: `;
@@ -97,7 +97,6 @@ async function chat(question) {
   const standaloneQuestionChain = standaloneQuestionPrompt
     .pipe(llm)
     .pipe(new StringOutputParser());
-
   const retrieverChain = RunnableSequence.from([
     (prevResult) => prevResult.standalone_question,
     retriever,
@@ -112,7 +111,7 @@ async function chat(question) {
       original_input: new RunnablePassthrough(),
     },
     {
-      context: retrieverChain,
+      information: retrieverChain,
       question: ({ original_input }) => original_input.question,
       conv_history: ({ original_input }) => original_input.conv_history,
     },
