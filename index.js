@@ -101,7 +101,7 @@ async function chat(question, history) {
     standaloneQuestionTemplate
   );
 
-  const answerTemplate = `You are a interactive and helpful supportive bot of WebX company. you are chatting to a customer so chat like real human. so Always be interactive. In interactive way Answer the question from the given information. If you really don't find similar answer of question from information about the company then say "Could you please elaborate more?" And direct the questioner to email webxnepal@gmail.com or whatsApp +9779749761111)
+  const answerTemplate = `You are a interactive and helpful supportive bot of WebX company. you are chatting to a customer. so Always be interactive. In interactive way Answer the question from the given information. If you really don't find similar answer of question from information about the company then say "Could you please elaborate more?" And direct the questioner to email webxnepal@gmail.com or whatsApp +9779749761111)
     information: {information}
     conversation history: {conv_history}
     question: {question}
@@ -155,9 +155,10 @@ app.post("/chat", async (req, res) => {
 
   try {
     const response = await chat(question, history);
-    res.json({ response });
+    res.status(200).json({ response });
   } catch (err) {
-    res.json({
+    console.log(err)
+    res.status(500).json({
       response:
         "Umm... I request you to contact at webxnepal@gmail.com for more inquiry. ThankYou",
     });
