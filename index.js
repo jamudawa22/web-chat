@@ -20,7 +20,7 @@ const {
 const app = express();
 app.use(cors());
 
-const port = 3000 || process.env.PORT;
+const port = 5014;
 app.use(bodyParser.json());
 
 function formatConvHistory(messages) {
@@ -36,7 +36,7 @@ function formatConvHistory(messages) {
 }
 
 const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY,
+  apiKey: '83ce8c5f-183b-4167-87b3-e0b3310daf1d',
 });
 const pineconeIndex = pinecone.Index("document");
 
@@ -57,7 +57,7 @@ async function chatBot() {
   await PineconeStore.fromDocuments(
     output,
     new GoogleGenerativeAIEmbeddings({
-      apiKey: process.env.GEMI_API_KEY,
+      apiKey: 'AIzaSyBLuNWqOW6sHrs4Hw0l0B9JhpuzG1NeC4w',
       modelName: "embedding-001", // 768 dimensions
       taskType: TaskType.RETRIEVAL_DOCUMENT,
     }),
@@ -71,7 +71,7 @@ async function chatBot() {
 
 const index_name = "document";
 const embedding_class = new GoogleGenerativeAIEmbeddings({
-  apiKey: process.env.GEMI_API_KEY,
+  apiKey: 'AIzaSyBLuNWqOW6sHrs4Hw0l0B9JhpuzG1NeC4w',
   modelName: "embedding-001", // 768 dimensions
   taskType: TaskType.RETRIEVAL_DOCUMENT,
 });
@@ -83,7 +83,7 @@ function combineDocuments(docs) {
 async function chat(question, history) {
   const llm = new ChatGoogleGenerativeAI({
     model: "gemini-pro",
-    apiKey: process.env.GEMI_API_KEY,
+    apiKey: 'AIzaSyBLuNWqOW6sHrs4Hw0l0B9JhpuzG1NeC4w',
     maxOutputTokens: 2048,
   });
 
