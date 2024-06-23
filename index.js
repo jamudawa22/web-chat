@@ -1,5 +1,5 @@
-import express from 'express';
-import bodyParser from 'body-parser';
+import express from "express";
+import bodyParser from "body-parser";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { TextLoader } from "langchain/document_loaders/fs/text";
@@ -9,8 +9,8 @@ import { PineconeStore } from "@langchain/pinecone";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import cors from 'cors'
-import dotenv from 'dotenv';
+import cors from "cors";
+import dotenv from "dotenv";
 dotenv.config();
 import {
   RunnablePassthrough,
@@ -20,7 +20,7 @@ import {
 const app = express();
 app.use(cors());
 
-const port = 3000 || process.env.PORT
+const port = 3000 || process.env.PORT;
 app.use(bodyParser.json());
 function formatConvHistory(messages) {
   return messages
@@ -41,6 +41,7 @@ async function chatBot() {
   const loader = new TextLoader("./data/personal.txt");
   const textLoader = await loader.load();
   console.log(textLoader);
+
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 100,
     chunkOverlap: 50,
@@ -63,32 +64,31 @@ async function chatBot() {
 // chatBot();
 const index_name = "document";
 const embedding_class = new GoogleGenerativeAIEmbeddings({
-  apiKey:process.env.GEMI_API_KEY,
+  apiKey: process.env.GEMI_API_KEY,
   modelName: "embedding-001", // 768 dimensions
   taskType: TaskType.RETRIEVAL_DOCUMENT,
 });
-function combineDocuments(docs){
-    return docs?.map((doc)=>doc.pageContent).join('\n\n')
+function combineDocuments(docs) {
+  return docs?.map((doc) => doc.pageContent).join("\n\n");
 }
-async function chat(question) {
+async function chat(question, history) {
   const llm = new ChatGoogleGenerativeAI({
     model: "gemini-pro",
     apiKey: process.env.GEMI_API_KEY,
     maxOutputTokens: 2048,
   });
-  const documents = await PineconeStore.fromExistingIndex(
-      embedding_class,
-      {pineconeIndex},
-  );
-  const retriever = documents.asRetriever()
-  const standaloneQuestionTemplate = `From the given question understand what it wants about the webX company and create a standalone question,
+  const documents = await PineconeStore.fromExistingIndex(embedding_class, {
+    pineconeIndex,
+  });
+  const retriever = documents.asRetriever();
+  const standaloneQuestionTemplate = `The given question is related to webX company. create a standalone question
     conversation history: {conv_history}
     question: {question} 
     standalone question:`;
   const standaloneQuestionPrompt = PromptTemplate.fromTemplate(
     standaloneQuestionTemplate
   );
-  const answerTemplate = `You are a interactive and helpful bot of WebX company .. you are chatting to a customer. so Always be interactive .Answer the question in interactive from the given information . If you really don't find similare answer of question from information about the company, say "Could you please elaborate more?" And direct the questioner to email webxnepal@gmail.com.
+  const answerTemplate = `You are a interactive and helpful supportive bot of WebX company. you are chatting to a customer so chat like real human. so Always be interactive. In interactive way Answer the question from the given information. If you really don't find similar answer of question from information about the company then say "Could you please elaborate more?" And direct the questioner to email webxnepal@gmail.com or whatsApp +9779749761111)
     information: {information}
     conversation history: {conv_history}
     question: {question}
@@ -119,23 +119,28 @@ async function chat(question) {
   ]);
   const response = await chain.invoke({
     question: question,
-    conv_history: formatConvHistory([]),
+    conv_history: [],
   });
-  console.log(response)
+  console.log("Question:",question);
+  console.log("Response",response);
   return response;
 }
 // chatBot()
-app.get("/",(req, res) => {
-  res.send("<h2>ChatBot</h2>")
-})
-app.post('/chat', async (req, res) => {
+app.get("/", (req, res) => {
+  res.send("<h2>ChatBot</h2>");
+});
+app.post("/chat", async (req, res) => {
   const question = req.body.question;
-  try{
-  const response = await chat(question);
-  res.json({ response });
-}catch(err){
-  res.json({ response:"Umm... I request you to contact at webxnepal@gmail.com for more inquiry. ThankYou" })
-}
+  const history = req.body.history;
+  try {
+    const response = await chat(question, history);
+    res.json({ response });
+  } catch (err) {
+    res.json({
+      response:
+        "Umm... I request you to contact at webxnepal@gmail.com for more inquiry. ThankYou",
+    });
+  }
 });
 app.listen(port, () => {
   console.log(`Server is listening at http://localhost:${port}`);
