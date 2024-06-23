@@ -146,7 +146,7 @@ async function chat(question, history) {
 // chatBot()
 
 app.get("/", (req, res) => {
-  res.send("<h2>ChatBot</h2>");
+  res.send("<h2>ChatBot1</h2>");
 });
 
 app.post("/chat", async (req, res) => {
